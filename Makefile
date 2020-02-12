@@ -1,5 +1,6 @@
 SDK_DIR ?= sdk
 VERSION ?= vdev
+DEVICE ?= /dev/ttyUSB1
 
 CFLAGS += -D'VERSION="${VERSION}"'
 
@@ -8,14 +9,16 @@ CFLAGS += -D'VERSION="${VERSION}"'
 .PHONY: all
 all: debug
 
+.PHONY: flash
+flash: debug
+	bcf -d ${DEVICE} flash firmware.bin
+
 .PHONY: sdk
 sdk: sdk/Makefile.mk
 
 .PHONY: update
 update:
 	@git submodule update --remote --merge sdk
-	@git submodule update --remote --merge .vscode
 
 sdk/Makefile.mk:
 	@git submodule update --init sdk
-	@git submodule update --init .vscode

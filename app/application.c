@@ -1,7 +1,8 @@
 // Stripped down firmware to report accelerometer only
 #include <application.h>
 
-#define ACCELEROMETER_UPDATE_INTERVAL 100
+#define ACCELEROMETER_UPDATE_INTERVAL 200
+#define PUBLISH_INDIVIDUAL_AXES 1
 
 // Accelerometer instance
 bc_lis2dh12_t lis2dh12;
@@ -18,10 +19,16 @@ void lis2dh12_event_handler(bc_lis2dh12_t *self, bc_lis2dh12_event_t event,
         // Successfully read accelerometer vectors?
         if (bc_lis2dh12_get_result_g(self, &result))
         {
-            bc_log_info("APP: Acceleration = [%.2f,%.2f,%.2f]",
-                        result.x_axis, result.y_axis, result.z_axis);
+#if PUBLISH_INDIVIDUAL_AXES
+            // Split for ViGraph input, one topic per axis
+            bc_radio_pub_float("accelerometer/-/x-axis", &result.x_axis);
+            bc_radio_pub_float("accelerometer/-/y-axis", &result.y_axis);
+            bc_radio_pub_float("accelerometer/-/z-axis", &result.z_axis);
+#else
+            // Standard way - publish a vector on 'accelerometer/-/acceleration'
             bc_radio_pub_acceleration(&result.x_axis, &result.y_axis,
                                       &result.z_axis);
+#endif
        }
     }
     // Error event?
