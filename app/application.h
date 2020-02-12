@@ -2,7 +2,7 @@
 #define _APPLICATION_H
 
 #ifndef VERSION
-#define VERSION "vdev"
+#define VERSION "pst-1"
 #endif
 
 #include <bcl.h>
